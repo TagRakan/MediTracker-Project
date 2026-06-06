@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediTracker — Smart Medication Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&family=IBM+Plex+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0f172a;--navy2:#1e293b;--navy3:#334155;
+  --accent:#6366f1;--accent2:#818cf8;--accent-soft:#eef2ff;
+  --bg:#f8f9fc;--white:#ffffff;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--hint:#94a3b8;
+  --green:#16a34a;--green-s:#f0fdf4;--green-b:#bbf7d0;
+  --orange:#d97706;--orange-s:#fffbeb;--orange-b:#fde68a;
+  --teal:#0d9488;--teal-s:#f0fdfa;--teal-b:#99f6e4;
+  --blue:#2563eb;--blue-s:#eff6ff;
+  --font:'DM Sans',sans-serif;
+  --font-ar:'IBM Plex Arabic',sans-serif;
+  --mono:'DM Mono',monospace;
+  --transition: all 0.3s ease;
+}
+
+html{scroll-behavior:smooth}
+html[lang="ar"]{direction:rtl}
+html[lang="ar"] body{font-family:var(--font-ar)}
+
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;transition:var(--transition)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+.lang-toggle{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.75);padding:5px 12px;border-radius:8px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;text-decoration:none;
+  font-family:var(--font);
+  white-space:nowrap;
+}
+.lang-toggle:hover{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.3)}
+.lang-toggle svg{width:14px;height:14px;flex-shrink:0}
+.lang-ar .lang-toggle{font-family:var(--font-ar)}
+
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,23,42,.94);backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  padding:0 5vw;
+}
+.nav-inner{max-width:1120px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#a78bfa);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-icon svg{width:18px;height:18px}
+.nav-brand-text{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border-radius:7px;transition:all .15s}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-cta{padding:7px 16px;background:var(--accent);color:#fff!important;border-radius:8px;font-weight:600!important;font-size:13px!important;transition:background .2s!important}
+.nav-cta:hover{background:#4f46e5!important}
+
+.hero{
+  background:var(--navy);
+  padding:100px 5vw 90px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 900px 600px at 70% 40%,rgba(99,102,241,.15) 0%,transparent 70%),
+    radial-gradient(ellipse 500px 400px at 10% 80%,rgba(99,102,241,.08) 0%,transparent 60%);
+}
+.hero-inner{max-width:1120px;margin:0 auto;position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-content{min-width:0;overflow:hidden}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:var(--accent2);padding:9px 18px;border-radius:99px;font-size:14px;font-weight:600;letter-spacing:.3px;margin-bottom:24px;white-space:nowrap;max-width:100%;box-sizing:border-box}
+html[lang="ar"] .hero-badge{letter-spacing:0}
+.hero-badge span:first-child{width:8px;height:8px;min-width:8px;border-radius:50%;background:var(--accent2);flex-shrink:0}
+.hero-badge .badge-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+h1{font-size:clamp(32px,4vw,52px);font-weight:700;color:#fff;line-height:1.1;letter-spacing:-.5px;margin-bottom:18px}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent2),#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:rgba(255,255,255,.5);line-height:1.7;margin-bottom:36px;max-width:480px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;border:none;font-family:var(--font);transition:all .18s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#4f46e5;transform:translateY(-1px)}
+.btn-outline{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.15)}
+.btn-outline:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.3)}
+.btn svg{width:16px;height:16px;flex-shrink:0}
+.lang-ar .btn{font-family:var(--font-ar)}
+
+.hero-visual{display:flex;justify-content:center;align-items:center}
+.phone-wrap{position:relative}
+.phone-frame{
+  width:240px;height:480px;border-radius:38px;
+  background:linear-gradient(160deg,#1e293b,#0f172a);
+  border:2px solid rgba(255,255,255,.12);
+  box-shadow:0 40px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05);
+  padding:14px;overflow:hidden;position:relative;
+}
+.phone-notch{
+  width:80px;height:24px;background:#0f172a;border-radius:0 0 18px 18px;
+  margin:0 auto 10px;position:relative;z-index:2;
+}
+.phone-screen{height:100%;display:flex;flex-direction:column;gap:8px}
+.phone-header{padding:4px 8px}
+.phone-header p{font-size:9px;color:rgba(255,255,255,.4);font-family:var(--mono)}
+.phone-header h3{font-size:15px;font-weight:700;color:#fff;line-height:1.2}
+.phone-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0}
+.phone-sum-cell{background:rgba(255,255,255,.05);border-radius:8px;padding:5px 4px;text-align:center}
+.phone-sum-cell .num{font-size:13px;font-weight:700}
+.phone-sum-cell .lbl{font-size:7px;color:rgba(255,255,255,.3);text-transform:uppercase}
+.sc-blue .num{color:#60a5fa}
+.sc-green .num{color:#4ade80}
+.sc-orange .num{color:#fb923c}
+.sc-gray .num{color:var(--hint)}
+.dose-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px;margin-bottom:4px}
+.dose-card .med{font-size:10px;font-weight:600;color:#fff;margin-bottom:3px}
+.dose-card .meta{font-size:8px;color:rgba(255,255,255,.4)}
+.dose-card .actions{display:flex;gap:5px;margin-top:8px}
+.dose-card .actions button{flex:1;padding:4px;border-radius:7px;border:none;font-size:7px;font-weight:600;font-family:var(--font);cursor:default}
+.dose-card .btn-take{background:#3b82f6;color:#fff}
+.dose-card .btn-skip{background:rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.upcoming-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:8px}
+.upcoming-card .uc-time{font-size:8px;font-weight:700;color:var(--accent2);margin-bottom:2px}
+.upcoming-card .uc-name{font-size:9px;color:rgba(255,255,255,.8);font-weight:600}
+.upcoming-card .uc-dose{font-size:7px;color:rgba(255,255,255,.35)}
+.pill-badge{
+  position:absolute;top:60px;right:-20px;
+  background:var(--accent);color:#fff;
+  font-size:9px;font-weight:700;padding:5px 10px;border-radius:99px;
+  white-space:nowrap;box-shadow:0 4px 12px rgba(99,102,241,.4);
+}
+.pill-badge2{
+  position:absolute;bottom:80px;left:-26px;
+  background:#0d9488;color:#fff;
+  font-size:9px;font-weight:700;padding:5px 10px;border-radius:99px;
+  white-space:nowrap;box-shadow:0 4px 12px rgba(13,148,136,.4);
+}
+
+html[lang="ar"] .pill-badge{right:auto;left:-20px}
+html[lang="ar"] .pill-badge2{left:auto;right:-26px}
+
+section{padding:80px 5vw}
+.section-inner{max-width:1120px;margin:0 auto}
+.section-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:10px}
+.section-title{font-size:clamp(26px,3vw,38px);font-weight:700;color:var(--navy);letter-spacing:-.3px;margin-bottom:14px}
+.section-desc{font-size:16px;color:var(--muted);line-height:1.7;max-width:580px;margin-bottom:50px}
+
+#features{background:var(--white)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:16px;
+  padding:24px;transition:transform .2s,box-shadow .2s;
+}
+.feat-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.07)}
+.feat-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;font-size:20px;
+}
+.fi-blue{background:var(--blue-s)}
+.fi-green{background:var(--green-s)}
+.fi-orange{background:var(--orange-s)}
+.fi-teal{background:var(--teal-s)}
+.fi-purple{background:var(--accent-soft)}
+.fi-navy{background:#f1f5f9}
+.feat-card h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:7px}
+.feat-card p{font-size:13px;color:var(--muted);line-height:1.65}
+
+#download{background:var(--navy);position:relative;overflow:hidden}
+#download::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 800px 500px at 50% 100%,rgba(99,102,241,.12) 0%,transparent 60%);
+}
+#download .section-inner{position:relative;z-index:2;text-align:center}
+#download .section-title{color:#fff}
+#download .section-desc{color:rgba(255,255,255,.5);margin:0 auto 40px}
+.download-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:640px;margin:0 auto}
+.dl-card{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;padding:24px;text-align:left;transition:background .2s;
+}
+html[lang="ar"] .dl-card{text-align:right}
+.dl-card:hover{background:rgba(255,255,255,.08)}
+.dl-card-icon{font-size:28px;margin-bottom:12px}
+.dl-card h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
+.dl-card p{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px;line-height:1.5}
+.dl-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 16px;background:var(--accent);color:#fff;
+  border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;
+  transition:background .2s;font-family:var(--font);
+}
+.lang-ar .dl-btn{font-family:var(--font-ar)}
+.dl-btn:hover{background:#4f46e5}
+.dl-btn-outline{
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);
+  border:1px solid rgba(255,255,255,.15);
+}
+.dl-btn-outline:hover{background:rgba(255,255,255,.14)}
+.dl-btn svg{width:14px;height:14px}
+.version-note{font-size:11px;color:rgba(255,255,255,.25);margin-top:24px;font-family:var(--mono)}
+
+#about{background:var(--white)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.about-text h2{font-size:clamp(24px,2.5vw,34px);font-weight:700;color:var(--navy);margin-bottom:14px;letter-spacing:-.2px}
+.about-text p{font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:16px}
+.about-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+.about-tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid var(--border);color:var(--muted);background:var(--bg)}
+.team-section{}
+.team-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--hint);margin-bottom:16px}
+.team-list{display:flex;flex-direction:column;gap:10px}
+.team-card{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;
+  transition:border-color .2s;
+}
+.team-card:hover{border-color:var(--accent)}
+.team-ava{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;
+}
+.ava-instructor{background:linear-gradient(135deg,var(--accent),#a78bfa);color:#fff}
+.ava-s1{background:#e0f2fe;color:#0369a1}
+.ava-s2{background:#f0fdf4;color:#16a34a}
+.ava-s3{background:#fff7ed;color:#c2410c}
+.ava-s4{background:#fdf4ff;color:#9333ea}
+.team-info{flex:1;min-width:0}
+.team-name{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-role{font-size:10px;color:var(--hint);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.team-email{font-size:11px;color:var(--accent);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+footer{
+  background:var(--navy);border-top:1px solid rgba(255,255,255,.06);
+  padding:32px 5vw;
+}
+.footer-inner{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-brand{display:flex;align-items:center;gap:9px}
+.footer-brand span{font-size:14px;color:rgba(255,255,255,.6);font-weight:500}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:rgba(255,255,255,.35);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:rgba(255,255,255,.7)}
+.footer-copy{font-size:11px;color:rgba(255,255,255,.2);font-family:var(--mono);margin-top:12px;width:100%;text-align:center}
+
+html[lang="ar"] .nav-links{flex-direction:row-reverse}
+html[lang="ar"] .hero-badge{letter-spacing:0}
+html[lang="ar"] .hero-sub{text-align:right}
+html[lang="ar"] h1{text-align:right}
+html[lang="ar"] .section-desc{text-align:right}
+html[lang="ar"] .section-title{text-align:right}
+html[lang="ar"] .section-tag{text-align:right;letter-spacing:0}
+html[lang="ar"] .feat-card p{text-align:right}
+html[lang="ar"] .feat-card h3{text-align:right}
+html[lang="ar"] .about-text p{text-align:right}
+html[lang="ar"] .about-text h2{text-align:right}
+html[lang="ar"] .team-title{text-align:right}
+html[lang="ar"] .team-name{text-align:right}
+html[lang="ar"] .team-role{text-align:right}
+html[lang="ar"] .team-email{text-align:right}
+html[lang="ar"] #download .section-desc{text-align:center}
+html[lang="ar"] .about-tags{flex-direction:row-reverse}
+html[lang="ar"] .footer-inner{flex-direction:row-reverse}
+html[lang="ar"] .footer-links{flex-direction:row-reverse}
+html[lang="ar"] .footer-copy{direction:ltr}
+html[lang="ar"] .version-note{direction:ltr}
+
+html[lang="ar"] nav,
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] p,
+html[lang="ar"] .hero-badge,
+html[lang="ar"] .section-tag,
+html[lang="ar"] .section-title,
+html[lang="ar"] .section-desc,
+html[lang="ar"] .feat-card,
+html[lang="ar"] .feat-card h3,
+html[lang="ar"] .feat-card p,
+html[lang="ar"] .about-text,
+html[lang="ar"] .team-name,
+html[lang="ar"] .team-role,
+html[lang="ar"] .about-tag,
+html[lang="ar"] .dl-card h3,
+html[lang="ar"] .dl-card p,
+html[lang="ar"] .nav-links a,
+html[lang="ar"] .nav-brand-text,
+html[lang="ar"] .footer-brand span,
+html[lang="ar"] .footer-links a {
+  font-family:var(--font-ar);
+}
+
+body, h1, h2, h3, p, a, span, div {
+  transition: opacity 0.15s ease;
+}
+
+body.lang-switching {
+  opacity: 0;
+}
+
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:50px}
+  .hero-visual{order:-1}
+  .features-grid{grid-template-columns:1fr 1fr}
+  .download-grid{grid-template-columns:1fr}
+  .about-grid{grid-template-columns:1fr}
+  .hero-sub{max-width:100%}
+}
+@media(max-width:600px){
+  nav{padding:0 4vw}
+  .nav-inner{height:56px}
+  .nav-links a:not(.nav-cta):not(.lang-toggle){display:none}
+  .hero{padding:64px 5vw 60px}
+  .hero-badge{font-size:12px;padding:7px 14px}
+  h1{font-size:clamp(28px,7vw,42px)}
+  .hero-sub{font-size:15px}
+  .btn{padding:11px 18px;font-size:13px}
+  .phone-frame{width:200px;height:400px;transform:scale(0.88);transform-origin:center top}
+  .pill-badge,.pill-badge2{display:none}
+  section{padding:56px 5vw}
+  .features-grid{grid-template-columns:1fr}
+  .section-title{font-size:clamp(22px,6vw,32px)}
+  .section-desc{font-size:14px}
+  .feat-card{padding:20px}
+  .footer-inner{flex-direction:column;align-items:flex-start;gap:16px}
+  html[lang="ar"] .footer-inner{align-items:flex-end}
+  .footer-links{flex-wrap:wrap;gap:12px}
+  .dl-card{padding:20px}
+  .hero-actions{flex-direction:column;align-items:flex-start}
+  html[lang="ar"] .hero-actions{align-items:flex-end}
+}
+@media(max-width:400px){
+  .nav-cta{display:none}
+  h1{font-size:26px}
+  .hero-badge{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">
+      <div class="nav-icon" style="background:none;padding:0;overflow:hidden">
+          <img src="meditracker_app_icon.svg" style="width:52px;height:52px;border-radius:10px;display:block">
+        </div>
+      <span class="nav-brand-text" data-en="MediTracker" data-ar="ميديتراكر">MediTracker</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features" data-en="Features" data-ar="المميزات">Features</a>
+      <a href="#download" data-en="Download" data-ar="تنزيل">Download</a>
+      <a href="#about" data-en="About" data-ar="عن التطبيق">About</a>
+      <button class="lang-toggle" id="langToggle" onclick="toggleLanguage()" aria-label="Switch language">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <span id="langLabel">العربية</span>
+      </button>
+      <a href="admin.html" class="nav-cta" data-en="Admin Panel →" data-ar="صفحة المشرفين →">Admin Panel →</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge"><span></span> <span class="badge-text" data-en="Mobile · Arabic &amp; English" data-ar="موبايل · عربي وإنجليزي">Mobile · Arabic &amp; English</span></div>
+      <h1 data-en='Never miss a dose <em>again</em>' data-ar='لن  تفوّت جرعة <em>بعد الآن</em>'>Never miss a dose <em>again</em></h1>
+      <p class="hero-sub" data-en="MediTracker keeps your medications on schedule, tracks your health history, and connects you with family and doctors — all in one beautifully simple app." data-ar="ميديتراكر يُنظّم مواعيد دوائك، ويتتبع تاريخك الصحي، ويربطك بعائلتك وأطبائك — كل ذلك في تطبيق واحد بسيط وأنيق.">MediTracker keeps your medications on schedule, tracks your health history, and connects you with family and doctors — all in one beautifully simple app.</p>
+      <div class="hero-actions">
+        <a href="#download" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-en="Download App" data-ar="تنزيل التطبيق">Download App</span>
+        </a>
+        <a href="#features" class="btn btn-outline" data-en="Learn More" data-ar="اكتشف المزيد">Learn More</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone-wrap">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-header">
+              <p id="phoneDate">Monday, Jun 2</p>
+              <h3 id="phoneTitle">Time to Take 💊</h3>
+            </div>
+            <div class="phone-sum">
+              <div class="phone-sum-cell sc-blue"><div class="num">5</div><div class="lbl" id="lbl-total">Total</div></div>
+              <div class="phone-sum-cell sc-green"><div class="num">2</div><div class="lbl" id="lbl-taken">Taken</div></div>
+              <div class="phone-sum-cell sc-orange"><div class="num">1</div><div class="lbl" id="lbl-due">Due</div></div>
+              <div class="phone-sum-cell sc-gray"><div class="num">2</div><div class="lbl" id="lbl-later">Later</div></div>
+            </div>
+            <div class="dose-card">
+              <div class="med" id="doseCardMed">Amoxicillin</div>
+              <div class="meta" id="doseCardMeta">8:00 AM · 500 mg · Oral</div>
+              <div class="actions">
+                <button class="btn-take" id="btnTake">✓ Take</button>
+                <button class="btn-skip" id="btnSkip">Skip</button>
+              </div>
+            </div>
+            <div style="font-size:8px;color:rgba(255,255,255,.3);padding:2px 0;font-weight:600;text-transform:uppercase;letter-spacing:.5px" id="upcomingLabel">Upcoming Today</div>
+            <div class="upcoming-card">
+              <div class="uc-time">2:00 PM</div>
+              <div class="uc-name">Metformin</div>
+              <div class="uc-dose" id="uc-dose1">1000 mg · After eating</div>
+            </div>
+            <div class="upcoming-card">
+              <div class="uc-time">9:00 PM</div>
+              <div class="uc-name">Aspirin</div>
+              <div class="uc-dose" id="uc-dose2">100 mg · After eating</div>
+            </div>
+          </div>
+        </div>
+        <div class="pill-badge" id="pillBadge">✓ Dose logged!</div>
+        <div class="pill-badge2" id="pillBadge2">🔔 Reminder set</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="section-inner">
+    <div class="section-tag" data-en="Features" data-ar="المميزات">Features</div>
+    <h2 class="section-title" data-en="Everything you need to stay on track" data-ar="كل ما تحتاجه للالتزام بجدولك">Everything you need to stay on track</h2>
+    <p class="section-desc" data-en="From smart dose scheduling to family health management, MediTracker covers every aspect of your medication journey." data-ar="من الجدولة الذكية للجرعات إلى إدارة صحة الأسرة، يغطي ميديتراكر كل جانب من جوانب رحلتك الدوائية.">From smart dose scheduling to family health management, MediTracker covers every aspect of your medication journey.</p>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon fi-blue">💊</div>
+        <h3 data-en="Smart Dose Scheduling" data-ar="جدولة ذكية للجرعات">Smart Dose Scheduling</h3>
+        <p data-en="Set flexible weekly schedules with custom times, amounts, and start/end dates." data-ar="اضبط جداول أسبوعية مرنة بأوقات وكميات وتواريخ بداية ونهاية مخصصة.">Set flexible weekly schedules with custom times, amounts, and start/end dates.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-green">📅</div>
+        <h3 data-en="Daily Schedule View" data-ar="عرض الجدول اليومي">Daily Schedule View</h3>
+        <p data-en="Browse any day on a scrollable calendar. See pending, taken, skipped, and missed doses at a glance with full history." data-ar="تصفح أي يوم على تقويم قابل للتمرير. اطّلع على الجرعات المعلقة والمأخوذة والمتخطاة والفائتة دفعة واحدة مع السجل الكامل.">Browse any day on a scrollable calendar. See pending, taken, skipped, and missed doses at a glance with full history.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-orange">👨‍👩‍👧</div>
+        <h3 data-en="Family Center" data-ar="مركز العائلة">Family Center</h3>
+        <p data-en="Add family members with relationship types and monitor their active doses and history." data-ar="أضف أفراد العائلة مع أنواع العلاقات وراقب جرعاتهم النشطة وسجلاتهم.">Add family members with relationship types and monitor their active doses and history.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-teal">🩺</div>
+        <h3 data-en="Doctor Connect" data-ar="ربط الطبيب">Doctor Connect</h3>
+        <p data-en="Doctors can prescribe doses directly to patients using a secure 6-character code system. Full patient management portal." data-ar="يمكن للأطباء وصف الجرعات مباشرة للمرضى عبر نظام رمز آمن مكوّن من 6 أحرف. بوابة إدارة مرضى كاملة.">Doctors can prescribe doses directly to patients using a secure 6-character code system. Full patient management portal.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-purple">🌐</div>
+        <h3 data-en="Arabic &amp; English" data-ar="عربي وإنجليزي">Arabic &amp; English</h3>
+        <p data-en="Full RTL support for Arabic with instant language switching. Every screen adapts layout direction automatically." data-ar="دعم كامل للغة العربية من اليمين إلى اليسار مع تبديل فوري للغة. تتكيف كل شاشة تلقائياً مع اتجاه التخطيط.">Full RTL support for Arabic with instant language switching. Every screen adapts layout direction automatically.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon fi-navy">🏥</div>
+        <h3 data-en="Ailment Tracking" data-ar="تتبع الأمراض">Ailment Tracking</h3>
+        <p data-en="Track health conditions with status (ongoing, recovering, cured, chronic). Doctors can view and update patient ailments." data-ar="تتبع الحالات الصحية مع الحالة (مستمر، في التعافي، متعافٍ، مزمن). يمكن للأطباء عرض أمراض المرضى وتحديثها.">Track health conditions with status (ongoing, recovering, cured, chronic). Doctors can view and update patient ailments.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="section-inner">
+    <div class="section-tag" style="color:var(--accent2)" data-en="Get the app" data-ar="احصل على التطبيق">Get the app</div>
+    <h2 class="section-title" data-en="Available on Android" data-ar="متاح على أندرويد">Available on Android</h2>
+    <p class="section-desc" data-en="Download MediTracker directly to your Android device, or access the web admin panel from any browser." data-ar="نزّل ميديتراكر مباشرة على جهاز أندرويد، أو ادخل إلى صفحة المشرفين من أي متصفح.">Download MediTracker directly to your Android device, or access the web admin panel from any browser.</p>
+    <div class="download-grid">
+      <div class="dl-card">
+        <div class="dl-card-icon">📱</div>
+        <h3 data-en="Android App (.apk)" data-ar="تطبيق أندرويد (.apk)">Android App (.apk)</h3>
+        <p data-en='Download the latest release directly to your Android device. Enable "Install from unknown sources" in settings before installing.' data-ar='نزّل الإصدار الأحدث مباشرة على جهاز أندرويد. فعّل "التثبيت من مصادر غير معروفة" في الإعدادات قبل التثبيت.'>Download the latest release directly to your Android device. Enable "Install from unknown sources" in settings before installing.</p>
+        <a href="meditracker.apk" class="dl-btn" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-en="Download APK" data-ar="تنزيل APK">Download APK</span>
+        </a>
+      </div>
+      <div class="dl-card">
+        <div class="dl-card-icon">🖥️</div>
+        <h3 data-en="Admin Panel" data-ar="صفحة المشرفين">Admin Panel</h3>
+        <p data-en="Manage medications, ailment types, users, and system logs from the web-based admin dashboard. Requires admin credentials." data-ar="أدِر الأدوية وأنواع الأمراض والمستخدمين وسجلات النظام من لوحة تحكم الويب. يتطلب تصريح مشرف.">Manage medications, ailment types, users, and system logs from the web-based admin dashboard. Requires admin credentials.</p>
+        <a href="admin.html" class="dl-btn dl-btn-outline">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span data-en="Open Admin Panel" data-ar="فتح صفحة المشرفين">Open Admin Panel</span>
+        </a>
+      </div>
+    </div>
+    <p class="version-note">v1.0.0 · Built with React Native + Spring Boot ·</p>
+  </div>
+</section>
+
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-tag" data-en="About the project" data-ar="عن المشروع">About the project</div>
+        <h2 data-en="Built by students, for everyone" data-ar="بناه الطلاب؛ عُمّ للجميع">Built by students, for everyone</h2>
+        <p data-en="MediTracker is a full-stack graduation project developed at Hail University. It combines a React Native mobile app with a Spring Boot backend to deliver a complete medication management platform." data-ar="ميديتراكر مشروع تخرج متكامل طُوِّر في جامعة حائل. يجمع بين تطبيق React Native للجوال وخادم Spring Boot لتقديم منصة شاملة لإدارة الأدوية.">MediTracker is a full-stack graduation project developed at Hail University. It combines a React Native mobile app with a Spring Boot backend to deliver a complete medication management platform.</p>
+        <p data-en="The app supports patients, doctors, and admins with role-based access, family health monitoring, and a fully localized Arabic/English interface." data-ar="يدعم التطبيق المرضى والأطباء والمسؤولين بوصول مبني على الأدوار، ومراقبة صحة الأسرة، وواجهة مترجمة بالكامل بالعربية والإنجليزية.">The app supports patients, doctors, and admins with role-based access, family health monitoring, and a fully localized Arabic/English interface.</p>
+        <div class="about-tags">
+          <span class="about-tag">React Native</span>
+          <span class="about-tag">Spring Boot</span>
+          <span class="about-tag">Expo</span>
+          <span class="about-tag">JWT Auth</span>
+          <span class="about-tag">Redux Toolkit</span>
+          <span class="about-tag">i18n RTL</span>
+        </div>
+      </div>
+      <div class="team-section">
+        <div class="team-title" data-en="The Team" data-ar="الفريق">The Team</div>
+        <div class="team-list">
+          <div class="team-card">
+            <div class="team-ava ava-instructor">MH</div>
+            <div class="team-info">
+              <div class="team-name">Dr. Mohamed Hazber</div>
+              <div class="team-role" data-en="Instructor / Supervisor" data-ar="المشرف الأكاديمي">Instructor / Supervisor</div>
+              <div class="team-email"></div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-ava ava-s1">OM</div>
+            <div class="team-info">
+              <div class="team-name">Omar Meshal Alshammri</div>
+              <div class="team-role" data-en="Student" data-ar="طالب">Student</div>
+              <div class="team-email"></div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-ava ava-s2">FI</div>
+            <div class="team-info">
+              <div class="team-name">Faisal Ibrahim Albker</div>
+              <div class="team-role" data-en="Student" data-ar="طالب">Student</div>
+              <div class="team-email"></div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-ava ava-s3">DB</div>
+            <div class="team-info">
+              <div class="team-name">Dhari Bandar Alshammari</div>
+              <div class="team-role" data-en="Student" data-ar="طالب">Student</div>
+              <div class="team-email"></div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-ava ava-s4">RL</div>
+            <div class="team-info">
+              <div class="team-name">Rakan Lafi Alanazi</div>
+              <div class="team-role" data-en="Student" data-ar="طالب">Student</div>
+              <div class="team-email"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="nav-icon" style="width:28px;height:28px;border-radius:8px">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px">
+          <rect x="9" y="2" width="6" height="5" rx="1.5" fill="white" opacity=".9"/>
+          <rect x="11" y="4" width="2" height="9" rx="1" fill="white"/>
+          <rect x="9" y="11" width="6" height="2" rx="1" fill="white"/>
+          <circle cx="12" cy="17" r="4.5" stroke="white" stroke-width="1.5" fill="none" opacity=".7"/>
+          <circle cx="12" cy="17" r="1.5" fill="white" opacity=".9"/>
+        </svg>
+      </div>
+      <span data-en="MediTracker" data-ar="ميديتراكر">MediTracker</span>
+    </div>
+    <div class="footer-links">
+      <a href="#features" data-en="Features" data-ar="المميزات">Features</a>
+      <a href="#download" data-en="Download" data-ar="تنزيل">Download</a>
+      <a href="#about" data-en="About" data-ar="عن التطبيق">About</a>
+      <a href="admin.html" data-en="Admin" data-ar="المشرفون">Admin</a>
+    </div>
+  </div>
+  <p class="footer-copy" data-en="© 2025 MediTracker · Graduation Project · Built with ❤ in Saudi Arabia" data-ar="© 2025 ميديتراكر · مشروع تخرج · صُنع بـ ❤ في المملكة العربية السعودية">© 2025 MediTracker · Graduation Project · Built with ❤ in Saudi Arabia</p>
+</footer>
+
+<script>
+  let currentLang = 'en';
+
+  const phoneStrings = {
+    en: {
+      date: 'Monday, Jun 2',
+      title: 'Time to Take 💊',
+      lblTotal: 'Total', lblTaken: 'Taken', lblDue: 'Due', lblLater: 'Later',
+      med: 'Amoxicillin', meta: '8:00 AM · 500 mg · Oral',
+      btnTake: '✓ Take', btnSkip: 'Skip',
+      upcoming: 'Upcoming Today',
+      dose1: '1000 mg · After eating', dose2: '100 mg · After eating',
+      badge1: '✓ Dose logged!', badge2: '🔔 Reminder set',
+    },
+    ar: {
+      date: 'الاثنين، 2 يونيو',
+      title: 'وقت أخذ الدواء 💊',
+      lblTotal: 'الكل', lblTaken: 'مأخوذة', lblDue: 'حان', lblLater: 'لاحقاً',
+      med: 'أموكسيسيلين', meta: '8:00 ص · 500 ملغ · فموي',
+      btnTake: '✓ خذ', btnSkip: 'تخطي',
+      upcoming: 'قادمة اليوم',
+      dose1: '1000 ملغ · بعد الأكل', dose2: '100 ملغ · بعد الأكل',
+      badge1: '✓ تم تسجيل الجرعة!', badge2: '🔔 تم ضبط التذكير',
+    }
+  };
+
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+    document.getElementById('langLabel').textContent = currentLang === 'en' ? 'العربية' : 'English';
+
+    document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+      const val = el.getAttribute('data-' + currentLang);
+      if (el.tagName === 'H1' || el.innerHTML.includes('<em>')) {
+        el.innerHTML = val;
+      } else {
+        el.textContent = val;
+      }
+    });
+
+    const s = phoneStrings[currentLang];
+    document.getElementById('phoneDate').textContent = s.date;
+    document.getElementById('phoneTitle').textContent = s.title;
+    document.getElementById('lbl-total').textContent = s.lblTotal;
+    document.getElementById('lbl-taken').textContent = s.lblTaken;
+    document.getElementById('lbl-due').textContent = s.lblDue;
+    document.getElementById('lbl-later').textContent = s.lblLater;
+    document.getElementById('doseCardMed').textContent = s.med;
+    document.getElementById('doseCardMeta').textContent = s.meta;
+    document.getElementById('btnTake').textContent = s.btnTake;
+    document.getElementById('btnSkip').textContent = s.btnSkip;
+    document.getElementById('upcomingLabel').textContent = s.upcoming;
+    document.getElementById('uc-dose1').textContent = s.dose1;
+    document.getElementById('uc-dose2').textContent = s.dose2;
+    document.getElementById('pillBadge').textContent = s.badge1;
+    document.getElementById('pillBadge2').textContent = s.badge2;
+
+    document.title = currentLang === 'ar'
+      ? 'ميديتراكر — إدارة ذكية للأدوية'
+      : 'MediTracker — Smart Medication Management';
+
+    document.body.classList.toggle('lang-ar', currentLang === 'ar');
+  }
+</script>
+
+</body>
+</html>

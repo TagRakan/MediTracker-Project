@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediTracker — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0f172a;--navy2:#1e293b;--navy3:#334155;
+  --accent:#6366f1;--accent2:#818cf8;--accent-soft:#eef2ff;
+  --bg:#f8f9fc;--white:#ffffff;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--hint:#94a3b8;
+  --red:#dc2626;--red-s:#fef2f2;--red-b:#fecaca;
+  --green:#16a34a;--green-s:#f0fdf4;--green-b:#bbf7d0;
+  --orange:#d97706;--orange-s:#fffbeb;--orange-b:#fde68a;
+  --blue:#2563eb;--blue-s:#eff6ff;--blue-b:#bfdbfe;
+  --purple:#7c3aed;--purple-s:#f5f3ff;--purple-b:#ddd6fe;
+  --teal:#0d9488;--teal-s:#f0fdfa;--teal-b:#99f6e4;
+  --sw:260px;
+  --font:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+#login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--navy);position:relative;overflow:hidden;
+}
+#login-screen::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 900px 600px at 60% 50%,rgba(99,102,241,.18) 0%,transparent 70%),
+             radial-gradient(ellipse 600px 400px at 20% 80%,rgba(99,102,241,.09) 0%,transparent 60%);
+}
+.login-box{
+  position:relative;z-index:2;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:20px;padding:44px 40px;width:420px;
+}
+.login-logo{text-align:center;margin-bottom:32px}
+.logo-mark{
+  width:52px;height:52px;border-radius:14px;margin:0 auto 14px;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;color:#fff;letter-spacing:-1px;
+}
+.login-logo h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.login-logo p{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+.login-box label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.4);display:block;margin-bottom:6px}
+.login-box input[type=email],.login-box input[type=password]{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;font-size:14px;color:#fff;outline:none;
+  font-family:var(--font);transition:border .2s;
+}
+.login-box input::placeholder{color:rgba(255,255,255,.25)}
+.login-box input:focus{border-color:rgba(99,102,241,.6)}
+.f-group{margin-bottom:18px}
+.btn-login{
+  width:100%;padding:13px;
+  background:var(--accent);color:#fff;border:none;
+  border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;
+  font-family:var(--font);transition:background .2s;
+}
+.btn-login:hover{background:#4f46e5}
+.login-err{
+  background:rgba(220,38,38,.15);color:#fca5a5;
+  border:1px solid rgba(220,38,38,.3);
+  border-radius:8px;padding:10px 14px;font-size:13px;
+  margin-bottom:14px;display:none;
+}
+.sep{border:none;border-top:1px solid rgba(255,255,255,.08);margin:20px 0}
+
+#app{display:none;height:100vh;overflow:hidden;flex-direction:row}
+
+.sidebar{
+  width:var(--sw);min-width:var(--sw);height:100vh;
+  background:var(--navy);color:#fff;
+  display:flex;flex-direction:column;position:relative;z-index:10;
+  border-right:1px solid rgba(255,255,255,.06);
+}
+.sb-head{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand{display:flex;align-items:center;gap:10px}
+.sb-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.sb-brand h2{font-size:15px;font-weight:700;letter-spacing:-.2px}
+.sb-brand p{font-size:10px;opacity:.4;margin-top:1px}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.nav-section{padding:12px 16px 4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;opacity:.3}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 16px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:background .15s,opacity .15s;border-radius:0;
+  position:relative;opacity:.7;
+}
+.nav-item:hover{background:rgba(255,255,255,.06);opacity:1}
+.nav-item.active{background:rgba(99,102,241,.18);opacity:1}
+.nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--accent2);border-radius:0 3px 3px 0}
+.nav-item .ni{font-size:17px;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:700;background:rgba(99,102,241,.3);color:var(--accent2);padding:2px 7px;border-radius:99px}
+.sb-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-user{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.ava{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sb-info p{font-size:13px;font-weight:600;color:#fff}
+.sb-info span{font-size:10px;opacity:.4}
+.conn-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px}
+.btn-logout{width:100%;padding:8px;background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.2);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .2s}
+.btn-logout:hover{background:rgba(239,68,68,.22)}
+
+.main-c{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;flex-shrink:0;
+}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left h3{font-size:16px;font-weight:700;color:var(--navy)}
+.breadcrumb{font-size:11px;color:var(--hint)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.time-chip{font-size:11px;font-family:var(--mono);color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:4px 10px;border-radius:99px}
+.page-c{padding:22px 24px;flex:1}
+
+.page{display:none}
+.page.active{display:block}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{
+  background:var(--white);border-radius:14px;padding:18px 20px;
+  border:1px solid var(--border);position:relative;overflow:hidden;
+}
+.stat-card::after{content:'';position:absolute;right:-14px;top:-14px;width:60px;height:60px;border-radius:50%;opacity:.08}
+.sc-blue::after{background:var(--blue)}
+.sc-green::after{background:var(--green)}
+.sc-orange::after{background:var(--orange)}
+.sc-purple::after{background:var(--purple)}
+.sc-teal::after{background:var(--teal)}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--hint);margin-bottom:8px}
+.stat-val{font-size:26px;font-weight:700;line-height:1}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.sc-blue .stat-val{color:var(--blue)}
+.sc-green .stat-val{color:var(--green)}
+.sc-orange .stat-val{color:var(--orange)}
+.sc-purple .stat-val{color:var(--purple)}
+.sc-teal .stat-val{color:var(--teal)}
+
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.sec-head h4{font-size:14px;font-weight:700;color:var(--text)}
+.sec-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-input{
+  padding:7px 12px;border:1px solid var(--border);border-radius:8px;
+  font-size:13px;outline:none;width:200px;font-family:var(--font);
+  background:var(--white);color:var(--text);
+}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+select.filter-sel{
+  padding:7px 10px;border:1px solid var(--border);border-radius:8px;
+  font-size:13px;outline:none;font-family:var(--font);
+  background:var(--white);color:var(--text);cursor:pointer;
+}
+select.filter-sel:focus{border-color:var(--accent)}
+
+.btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#4f46e5}
+.btn-danger{background:var(--red-s);color:var(--red);border:1px solid var(--red-b)}
+.btn-danger:hover{background:#fee2e2}
+.btn-success{background:var(--green-s);color:var(--green);border:1px solid var(--green-b)}
+.btn-success:hover{background:#dcfce7}
+.btn-outline{background:var(--white);color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--bg)}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:7px}
+
+.tbl-wrap{background:var(--white);border-radius:14px;border:1px solid var(--border);overflow:hidden}
+.tbl-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tbl-header span{font-size:13px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;background:#f8fafc;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--hint);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.empty-row td{text-align:center;color:var(--muted);padding:36px;font-size:13px}
+
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.b-blue{background:var(--blue-s);color:var(--blue);border:1px solid var(--blue-b)}
+.b-green{background:var(--green-s);color:var(--green);border:1px solid var(--green-b)}
+.b-red{background:var(--red-s);color:var(--red);border:1px solid var(--red-b)}
+.b-orange{background:var(--orange-s);color:var(--orange);border:1px solid var(--orange-b)}
+.b-purple{background:var(--purple-s);color:var(--purple);border:1px solid var(--purple-b)}
+.b-teal{background:var(--teal-s);color:var(--teal);border:1px solid var(--teal-b)}
+.b-gray{background:#f1f5f9;color:var(--muted);border:1px solid var(--border)}
+
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(15,23,42,.5);backdrop-filter:blur(4px);
+  z-index:200;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--white);border-radius:18px;padding:28px;
+  width:500px;max-height:90vh;overflow-y:auto;
+  border:1px solid var(--border);
+  animation:fadeUp .2s ease;
+}
+.modal.modal-sm{width:380px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-top h3{font-size:16px;font-weight:700;color:var(--navy)}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--muted);line-height:1;padding:2px 6px;border-radius:6px}
+.modal-close:hover{background:var(--bg)}
+.m-err{background:var(--red-s);color:var(--red);border:1px solid var(--red-b);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:14px;display:none}
+.m-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);display:block;margin-bottom:5px}
+.m-input,.m-select,.m-textarea{
+  width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:9px;
+  font-size:13px;outline:none;font-family:var(--font);
+  background:var(--white);color:var(--text);margin-bottom:14px;
+  transition:border .2s;
+}
+.m-input:focus,.m-select:focus,.m-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.m-textarea{resize:vertical;min-height:70px}
+.m-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.m-check-row{display:flex;gap:16px;margin-bottom:14px}
+.m-check-row label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text)}
+.m-check-row input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:var(--accent)}
+
+.tag-group{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.tag-chip{
+  padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1px solid var(--border);background:var(--white);
+  color:var(--muted);transition:all .12px;user-select:none;
+}
+.tag-chip:hover{border-color:var(--accent);color:var(--accent)}
+.tag-chip.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.toast{
+  position:fixed;bottom:22px;right:22px;z-index:999;
+  padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+  transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-default{background:var(--navy2);color:#fff}
+.toast-success{background:#14532d;color:#bbf7d0}
+.toast-error{background:#7f1d1d;color:#fecaca}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.chip-list{display:flex;flex-wrap:wrap;gap:3px;max-width:200px}
+.chip-list .badge{margin:1px}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.bool-yes{color:var(--green);font-weight:600}
+.bool-no{color:var(--hint)}
+kbd{font-family:var(--mono);font-size:10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--muted)}
+
+.btn[disabled]{opacity:.5;cursor:not-allowed;pointer-events:none}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-mark" style="background:none;padding:0;overflow:hidden"><img src="meditracker_app_icon.svg" style="width:72px;height:72px;border-radius:14px;display:block"></div>
+      <h1>MediTracker</h1>
+      <p>Admin Panel — Restricted to administrators only</p>
+    </div>
+    <div class="login-err" id="login-err"></div>
+
+    <div class="f-group">
+      <label>Email / Username</label>
+      <input type="email" id="login-u" placeholder="admin@example.com" />
+    </div>
+    <div class="f-group">
+      <label>Password</label>
+      <input type="password" id="login-p" placeholder="••••••••" />
+    </div>
+    <button class="btn-login" id="btn-sign-in" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<div id="app" style="display:none;height:100vh;display:flex">
+
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-brand">
+        <div class="sb-mark" style="background:none;padding:0;overflow:hidden"><img src="meditracker_app_icon.svg" style="width:44px;height:44px;border-radius:9px;display:block"></div>
+        <div>
+          <h2>MediTracker</h2>
+          <p>Admin Panel</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+        <span class="ni">📊</span> Dashboard
+      </div>
+      <div class="nav-section">Medical Data</div>
+      <div class="nav-item" onclick="showPage('medications')" id="nav-medications">
+        <span class="ni">💊</span> Medications
+      </div>
+      <div class="nav-item" onclick="showPage('ailmenttypes')" id="nav-ailmenttypes">
+        <span class="ni">🩺</span> Ailment Types
+      </div>
+      <div class="nav-section">People</div>
+      <div class="nav-item" onclick="showPage('users')" id="nav-users">
+        <span class="ni">👥</span> Users
+        <span class="nav-badge" id="nav-users-badge" style="display:none"></span>
+      </div>
+      <div class="nav-section">System</div>
+      <div class="nav-item" onclick="showPage('logs')" id="nav-logs">
+        <span class="ni">📋</span> System Logs
+        <span class="nav-badge" id="nav-logs-badge" style="display:none"></span>
+      </div>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="ava" id="sb-ava">A</div>
+        <div class="sb-info">
+          <p id="sb-name">Admin</p>
+          <span><span class="conn-dot"></span>Connected</span>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main-c">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h3 id="topbar-title">Dashboard</h3>
+        <span class="breadcrumb" id="topbar-bc"></span>
+      </div>
+      <div class="topbar-right">
+        <span class="time-chip" id="topbar-time"></span>
+      </div>
+    </div>
+
+    <div class="page-c">
+
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card sc-blue">
+            <div class="stat-label">Medications</div>
+            <div class="stat-val" id="s-meds">—</div>
+            <div class="stat-sub">Total in database</div>
+          </div>
+          <div class="stat-card sc-teal">
+            <div class="stat-label">Ailment Types</div>
+            <div class="stat-val" id="s-ailments">—</div>
+            <div class="stat-sub">Custom + standard</div>
+          </div>
+          <div class="stat-card sc-orange">
+            <div class="stat-label">Logs</div>
+            <div class="stat-val" id="s-logs">—</div>
+            <div class="stat-sub">System events total</div>
+          </div>
+          <div class="stat-card sc-purple">
+            <div class="stat-label">Session</div>
+            <div class="stat-val" id="s-session">0m</div>
+            <div class="stat-sub">Time since login</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="tbl-wrap">
+            <div class="tbl-header">
+              <span>Recent Logs</span>
+              <button class="btn btn-outline btn-sm" onclick="loadLogs(true)">↻ Refresh</button>
+            </div>
+            <table>
+              <thead><tr><th>Type</th><th>Description</th><th>When</th></tr></thead>
+              <tbody id="dash-logs"></tbody>
+            </table>
+          </div>
+          <div class="tbl-wrap">
+            <div class="tbl-header">
+              <span>Latest Medications</span>
+              <button class="btn btn-outline btn-sm" onclick="showPage('medications')">View all →</button>
+            </div>
+            <table>
+              <thead><tr><th>Name</th><th>Custom</th><th>Protected</th></tr></thead>
+              <tbody id="dash-meds"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-medications">
+        <div class="sec-head">
+          <h4>All Medications</h4>
+          <div class="sec-tools">
+            <input type="text" class="search-input" id="med-q" placeholder="Search name…" oninput="filterMeds()">
+            <button class="btn btn-outline btn-sm" onclick="loadMedications()">↻</button>
+            <button class="btn btn-primary btn-sm" onclick="openMedModal()">+ Add</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Name</th><th>Effects</th><th>Side Effects</th>
+                <th>Methods</th><th>Restrictions</th><th>Custom</th><th>Protected</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="med-tbody">
+              <tr class="empty-row"><td colspan="9"><span class="spinner"></span>Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="page" id="page-ailmenttypes">
+        <div class="sec-head">
+          <h4>Ailment Types</h4>
+          <div class="sec-tools">
+            <input type="text" class="search-input" id="at-q" placeholder="Search name…" oninput="filterAilmentTypes()">
+            <select class="filter-sel" id="at-filter" onchange="filterAilmentTypes()">
+              <option value="">All</option>
+              <option value="protected">Protected only</option>
+              <option value="custom">Custom only</option>
+              <option value="physical">Physical</option>
+              <option value="mental">Mental</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="loadAilmentTypes()">↻</button>
+            <button class="btn btn-primary btn-sm" onclick="openAilmentTypeModal()">+ Add</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Name</th><th>Description</th>
+                <th>Physical</th><th>Custom</th><th>Protected</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="at-tbody">
+              <tr class="empty-row"><td colspan="7"><span class="spinner"></span>Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="page" id="page-users">
+        <div class="sec-head">
+          <h4>Registered Users</h4>
+          <div class="sec-tools">
+            <input type="text" class="search-input" id="user-q" placeholder="Search name/email…" oninput="filterUsers()">
+            <button class="btn btn-outline btn-sm" onclick="loadUsers()">↻</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+          <button class="btn btn-outline btn-sm" onclick="prevUserPage()" id="btn-prev-page" disabled>← Prev</button>
+          <span style="font-size:12px;color:var(--muted)" id="page-indicator">Page 1</span>
+          <button class="btn btn-outline btn-sm" onclick="nextUserPage()" id="btn-next-page">Next →</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Name</th><th>Email</th><th>DOB</th><th>Roles</th><th>Doses</th><th>Family</th><th>Privilege</th></tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr class="empty-row"><td colspan="8"><span class="spinner"></span>Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="page" id="page-logs">
+        <div class="sec-head">
+          <h4>System Logs</h4>
+          <div class="sec-tools">
+            <input type="text" class="search-input" id="log-q" placeholder="Search description…" oninput="filterLogs()">
+            <select class="filter-sel" id="log-type-f" onchange="filterLogs()">
+              <option value="">All types</option>
+              <option value="ADD">ADD</option>
+              <option value="DELETE">DELETE</option>
+              <option value="UPDATE">UPDATE</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="loadLogs()">↻</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Type</th><th>Description</th><th>Timestamp</th></tr></thead>
+            <tbody id="logs-tbody">
+              <tr class="empty-row"><td colspan="4"><span class="spinner"></span>Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="med-modal">
+  <div class="modal">
+    <div class="modal-top">
+      <h3 id="med-modal-title">Add Medication</h3>
+      <button class="modal-close" onclick="closeMedModal()">×</button>
+    </div>
+    <div class="m-err" id="med-err"></div>
+    <input type="hidden" id="med-id">
+    <label class="m-label">Medication Name <span style="color:var(--hint)">(5–30 chars)</span></label>
+    <input type="text" class="m-input" id="med-name" placeholder="e.g. Amoxicillin" maxlength="30">
+    <label class="m-label">Effects <span style="color:var(--red)">*</span></label>
+    <div class="tag-group" id="tg-effects"></div>
+    <label class="m-label">Side Effects <span style="color:var(--red)">*</span></label>
+    <div class="tag-group" id="tg-side"></div>
+    <label class="m-label">Ingestion Methods <span style="color:var(--red)">*</span></label>
+    <div class="tag-group" id="tg-methods"></div>
+    <label class="m-label">Restrictions <span style="color:var(--red)">*</span></label>
+    <div class="tag-group" id="tg-restr"></div>
+    <label class="m-label">Flags</label>
+    <div class="m-check-row">
+      <label><input type="checkbox" id="med-protected"> Protected</label>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeMedModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMedication()">Save Medication</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="at-modal">
+  <div class="modal">
+    <div class="modal-top">
+      <h3 id="at-modal-title">Add Ailment Type</h3>
+      <button class="modal-close" onclick="closeATModal()">×</button>
+    </div>
+    <div class="m-err" id="at-err"></div>
+    <input type="hidden" id="at-id">
+    <label class="m-label">Name <span style="color:var(--red)">*</span></label>
+    <input type="text" class="m-input" id="at-name" placeholder="e.g. Type 2 Diabetes">
+    <label class="m-label">Description</label>
+    <textarea class="m-textarea" id="at-desc" placeholder="Short description (max 1000 chars)" maxlength="1000"></textarea>
+    <div class="m-row">
+      <div>
+        <label class="m-label">Flags</label>
+        <div class="m-check-row" style="flex-direction:column;gap:8px">
+          <label><input type="checkbox" id="at-protected"> Protected</label>
+          <label><input type="checkbox" id="at-physical"> Physical</label>
+        </div>
+      </div>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeATModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAilmentType()">Save Ailment Type</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal modal-sm">
+    <div class="modal-top">
+      <h3 id="conf-title">Confirm Delete</h3>
+      <button class="modal-close" onclick="closeConfirm()">×</button>
+    </div>
+    <p id="conf-msg" style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5"></p>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmOk()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast toast-default" id="toast"></div>
+
+<script>
+
+const API_BASE = 'https://mta-dew3.onrender.com';
+
+const LS = {
+  KEY_TOKEN:'mta_token', KEY_NAME:'mta_name',
+  save(k,v){try{localStorage.setItem(k,v)}catch(e){}},
+  load(k){try{return localStorage.getItem(k)}catch(e){return null}},
+  clear(){try{['mta_token','mta_name'].forEach(k=>localStorage.removeItem(k))}catch(e){}}
+};
+
+let API = API_BASE;
+let token = LS.load(LS.KEY_TOKEN) || '';
+let allMeds=[], allAilmentTypes=[], allUsers=[], allLogs=[];
+let confirmCb=null, loginTime=null;
+let userPage=0;
+const USER_PAGE_SIZE=50;
+
+const E = {
+  effects:['PAIN_NUMBING','ANTI_FUNGAL','ANTI_BACTERIAL','ANTI_VIRAL','RELAXANT','STIMULANT','BP_REGULATOR','NONE'],
+  sideEffects:['NAUSEA','DROWSINESS','HEADACHE','UPSET_STOMACH','INCREASED_HEARTBEAT','NONE'],
+  methods:['ORAL','TRANSDERMAL','RECTAL','INTERMUSCULAR_INJECTION','INTERVENOUS_INJECTION','TRANSNASAL','INHALATION','NONE'],
+  restrictions:['AFTER_EATING','BEFORE_EATING','NON_PREGNANT_ONLY','NONE']
+};
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(token){
+    const name = LS.load(LS.KEY_NAME) || 'Admin';
+    bootApp(name);
+  }
+  tick();
+  setInterval(tick, 1000);
+  setInterval(updateSession, 30000);
+  document.getElementById('login-p').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+  document.getElementById('login-u').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+});
+
+function tick(){
+  const el=document.getElementById('topbar-time');
+  if(el) el.textContent=new Date().toLocaleTimeString();
+}
+function updateSession(){
+  if(!loginTime) return;
+  const mins=Math.round((Date.now()-loginTime)/60000);
+  const el=document.getElementById('s-session');
+  if(el) el.textContent=mins>=60?`${Math.floor(mins/60)}h ${mins%60}m`:`${mins}m`;
+}
+
+function h(){ return {'Content-Type':'application/json','Authorization':'Bearer '+token}; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleString(); }catch{ return d; } }
+
+function toast(msg,type='default'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className=`toast toast-${type} show`;
+  setTimeout(()=>{ el.className=`toast toast-${type}`; },3200);
+}
+
+async function api(path, opts={}){
+  const url = API + path;
+  const res = await fetch(url,{ headers:h(), ...opts });
+  return res;
+}
+
+function badgeList(arr,cls){
+  if(!arr||arr.length===0) return '<span style="color:var(--hint)">—</span>';
+  const items=arr.map(a=>{
+    const n=a.name||String(a);
+    if(n==='NONE') return '';
+    return `<span class="badge ${cls}" style="margin:1px;">${n.replace(/_/g,' ')}</span>`;
+  }).filter(Boolean);
+  return items.length?items.join(''):'<span style="color:var(--hint)">—</span>';
+}
+function boolBadge(val,yesLabel='Yes',noLabel='No'){
+  return val?`<span class="bool-yes">✓ ${yesLabel}</span>`:`<span class="bool-no">— ${noLabel}</span>`;
+}
+
+async function doLogin(){
+  const username=document.getElementById('login-u').value.trim();
+  const password=document.getElementById('login-p').value;
+  const errEl=document.getElementById('login-err');
+  const btn=document.getElementById('btn-sign-in');
+
+  errEl.style.display='none';
+  if(!username||!password){ showLoginErr('Please enter email and password.'); return; }
+
+  btn.textContent='Signing in…';
+  btn.disabled=true;
+
+  try{
+    const res=await fetch(`${API}/api/auth/login`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username,password})
+    });
+
+    if(!res.ok){
+      const txt=await res.text();
+      btn.textContent='Sign In'; btn.disabled=false;
+      if(txt.toLowerCase().includes("doesn't exist")) showLoginErr("User doesn't exist.");
+      else if(txt.toLowerCase().includes("incorrect")) showLoginErr('Incorrect username or password.');
+      else showLoginErr('Login failed: '+txt);
+      return;
+    }
+
+    const data=await res.json();
+    const roles=data.roles||[];
+
+    if(!roles.includes('ROLE_ADMIN')){
+      btn.textContent='Sign In'; btn.disabled=false;
+      showLoginErr('⛔ Access denied. This panel requires ROLE_ADMIN.');
+      return;
+    }
+
+    token=data.accessToken;
+    const name=data.name||data.username||'Admin';
+    LS.save(LS.KEY_TOKEN,token);
+    LS.save(LS.KEY_NAME,name);
+    btn.textContent='Sign In'; btn.disabled=false;
+    bootApp(name);
+
+  }catch(e){
+    btn.textContent='Sign In'; btn.disabled=false;
+    showLoginErr(`❌ Cannot connect to the server. Make sure the backend is running.`);
+  }
+}
+
+function showLoginErr(msg){
+  const el=document.getElementById('login-err');
+  el.textContent=msg; el.style.display='block';
+}
+
+function bootApp(name){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('sb-name').textContent=name;
+  document.getElementById('sb-ava').textContent=(name[0]||'A').toUpperCase();
+  loginTime=Date.now();
+  loadDashboard();
+}
+
+function doLogout(){
+  token='';
+  LS.clear();
+  allMeds=[]; allAilmentTypes=[]; allUsers=[]; allLogs=[];
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-p').value='';
+  document.getElementById('login-err').style.display='none';
+}
+
+const PAGE_TITLES={
+  dashboard:'Dashboard', medications:'Medications',
+  ailmenttypes:'Ailment Types', users:'Users', logs:'System Logs'
+};
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name)?.classList.add('active');
+  document.getElementById('topbar-title').textContent=PAGE_TITLES[name]||name;
+  if(name==='dashboard') loadDashboard();
+  if(name==='medications') loadMedications();
+  if(name==='ailmenttypes') loadAilmentTypes();
+  if(name==='users') loadUsers();
+  if(name==='logs') loadLogs();
+}
+
+async function loadDashboard(){
+  await Promise.allSettled([loadMedications(true),loadAilmentTypes(true),loadLogs(true)]);
+  updateSession();
+}
+
+function renderDashLogs(logs){
+  const tb=document.getElementById('dash-logs');
+  const recent=[...logs].reverse().slice(0,8);
+  if(!recent.length){ tb.innerHTML='<tr class="empty-row"><td colspan="3">No logs yet.</td></tr>'; return; }
+  tb.innerHTML=recent.map(l=>{
+    const t=l.logType?.name||'—';
+    const cls=t==='ADD'?'b-green':t==='DELETE'?'b-red':'b-orange';
+    return `<tr>
+      <td><span class="badge ${cls}">${t}</span></td>
+      <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">${esc(l.description||'')}</td>
+      <td style="font-size:11px;color:var(--hint);white-space:nowrap">${fmtDate(l.localDateTime)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDashMeds(meds){
+  const tb=document.getElementById('dash-meds');
+  const recent=[...meds].slice(-8).reverse();
+  if(!recent.length){ tb.innerHTML='<tr class="empty-row"><td colspan="3">No medications.</td></tr>'; return; }
+  tb.innerHTML=recent.map(m=>`<tr>
+    <td><strong>${esc(m.name)}</strong></td>
+    <td>${m.isCustom?'<span class="badge b-blue">Yes</span>':'<span class="badge b-gray">No</span>'}</td>
+    <td>${m.isProtected?'<span class="badge b-orange">Yes</span>':'<span class="badge b-gray">No</span>'}</td>
+  </tr>`).join('');
+}
+
+async function loadMedications(silent=false){
+  if(!token) return;
+  if(!silent) setTbLoading('med-tbody',9);
+  try{
+    const res=await api('/api/medication/findall');
+    if(!res.ok) throw new Error(await res.text());
+    allMeds=await res.json();
+    document.getElementById('s-meds').textContent=allMeds.length;
+    renderMeds(allMeds);
+    renderDashMeds(allMeds);
+  }catch(e){
+    if(!silent) toast('Failed to load medications: '+e.message,'error');
+    setTbErr('med-tbody',9,'Failed to load medications. Check CORS configuration.');
+  }
+}
+
+function renderMeds(meds){
+  const tb=document.getElementById('med-tbody');
+  if(!meds.length){ tb.innerHTML='<tr class="empty-row"><td colspan="9">No medications found.</td></tr>'; return; }
+  tb.innerHTML=meds.map((m,i)=>`<tr>
+    <td style="color:var(--hint);font-family:var(--mono);font-size:11px">${m.id||i+1}</td>
+    <td><strong>${esc(m.name)}</strong></td>
+    <td><div class="chip-list">${badgeList(m.effects,'b-blue')}</div></td>
+    <td><div class="chip-list">${badgeList(m.sideEffects,'b-orange')}</div></td>
+    <td><div class="chip-list">${badgeList(m.ingestionMethods,'b-purple')}</div></td>
+    <td><div class="chip-list">${badgeList(m.restrictions,'b-gray')}</div></td>
+    <td>${m.isCustom?'<span class="badge b-blue">Yes</span>':'<span class="badge b-gray">No</span>'}</td>
+    <td>${m.isProtected?'<span class="badge b-orange">Yes</span>':'<span class="badge b-gray">No</span>'}</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-success btn-sm" onclick="openMedModal(${m.id})">Edit</button>
+      <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="askDelete('medication',${m.id},'${esc(m.name)}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+function filterMeds(){
+  const q=document.getElementById('med-q').value.toLowerCase();
+  renderMeds(allMeds.filter(m=>m.name.toLowerCase().includes(q)));
+}
+
+function buildTags(containerId,opts,presel=[]){
+  const el=document.getElementById(containerId);
+  el.innerHTML=opts.map(o=>`
+    <span class="tag-chip ${presel.includes(o)?'sel':''}" data-v="${o}" onclick="this.classList.toggle('sel')">${o.replace(/_/g,' ')}</span>
+  `).join('');
+}
+
+function getSelected(containerId){
+  return [...document.querySelectorAll(`#${containerId} .tag-chip.sel`)].map(e=>e.dataset.v);
+}
+
+function openMedModal(id=null){
+  document.getElementById('med-err').style.display='none';
+  if(id){
+    const m=allMeds.find(x=>x.id===id);
+    if(!m) return;
+    document.getElementById('med-modal-title').textContent='Edit Medication';
+    document.getElementById('med-id').value=id;
+    document.getElementById('med-name').value=m.name;
+    document.getElementById('med-protected').checked=!!m.isProtected;
+    const names=arr=>(arr||[]).map(a=>a.name||String(a));
+    buildTags('tg-effects',E.effects,names(m.effects));
+    buildTags('tg-side',E.sideEffects,names(m.sideEffects));
+    buildTags('tg-methods',E.methods,names(m.ingestionMethods));
+    buildTags('tg-restr',E.restrictions,names(m.restrictions));
+  }else{
+    document.getElementById('med-modal-title').textContent='Add Medication';
+    document.getElementById('med-id').value='';
+    document.getElementById('med-name').value='';
+    document.getElementById('med-protected').checked=false;
+    buildTags('tg-effects',E.effects,['NONE']);
+    buildTags('tg-side',E.sideEffects,['NONE']);
+    buildTags('tg-methods',E.methods,['ORAL']);
+    buildTags('tg-restr',E.restrictions,['NONE']);
+  }
+  document.getElementById('med-modal').classList.add('open');
+}
+
+function closeMedModal(){ document.getElementById('med-modal').classList.remove('open'); }
+
+async function saveMedication(){
+  document.getElementById('med-err').style.display='none';
+  const editId=document.getElementById('med-id').value;
+  const name=document.getElementById('med-name').value.trim();
+  if(name.length<5||name.length>30){ showMErr('Name must be 5–30 characters.'); return; }
+  const effects=getSelected('tg-effects');
+  const sideEffects=getSelected('tg-side');
+  const ingestionMethods=getSelected('tg-methods');
+  const restrictions=getSelected('tg-restr');
+  if(!effects.length){ showMErr('Select at least one effect.'); return; }
+  if(!sideEffects.length){ showMErr('Select at least one side effect.'); return; }
+  if(!ingestionMethods.length){ showMErr('Select at least one ingestion method.'); return; }
+  if(!restrictions.length){ showMErr('Select at least one restriction.'); return; }
+
+  const body={
+    name,
+    isCustom:false,
+    isProtected:document.getElementById('med-protected').checked,
+    effects,sideEffects,ingestionMethods,restrictions
+  };
+
+  try{
+    let res;
+    if(editId){
+      res=await api(`/api/medication/updateMedication/${editId}`,{method:'PUT',body:JSON.stringify(body)});
+    }else{
+      res=await api('/api/medication/addMedication',{method:'POST',body:JSON.stringify(body)});
+    }
+    if(!res.ok){ const t=await res.text(); throw new Error(t); }
+    toast(editId?'Medication updated ✓':'Medication added ✓','success');
+    closeMedModal();
+    loadMedications();
+  }catch(e){ showMErr('Error: '+e.message); }
+}
+
+function showMErr(msg){ const e=document.getElementById('med-err'); e.textContent=msg; e.style.display='block'; }
+
+async function loadAilmentTypes(silent=false){
+  if(!token) return;
+  if(!silent) setTbLoading('at-tbody',7);
+  try{
+    const res=await api('/api/ailment/type/getall');
+    if(!res.ok) throw new Error(await res.text());
+    const nonProtected=await res.json();
+
+    let custom=[];
+    try{
+      const r2=await api('/api/ailment/type/self/findall');
+      if(r2.ok){
+        const ct=await r2.text();
+        if(ct && ct!=='null') custom=JSON.parse(ct);
+      }
+    }catch(e){}
+
+    const merged=[...nonProtected];
+    (Array.isArray(custom)?custom:[]).forEach(c=>{
+      if(!merged.find(m=>m.id===c.id)) merged.push(c);
+    });
+    allAilmentTypes=merged;
+    document.getElementById('s-ailments').textContent=allAilmentTypes.length;
+    renderAilmentTypes(allAilmentTypes);
+  }catch(e){
+    if(!silent) toast('Failed to load ailment types: '+e.message,'error');
+    setTbErr('at-tbody',7,'Failed to load ailment types. Check CORS configuration.');
+  }
+}
+
+function renderAilmentTypes(types){
+  const tb=document.getElementById('at-tbody');
+  if(!types.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">No ailment types found.</td></tr>'; return; }
+  tb.innerHTML=types.map((t,i)=>`<tr>
+    <td style="color:var(--hint);font-family:var(--mono);font-size:11px">${t.id||i+1}</td>
+    <td><strong>${esc(t.name)}</strong></td>
+    <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:12px">${esc(t.ailmentDescription||'—')}</td>
+    <td>${t.isPhysical===true?'<span class="badge b-teal">Physical</span>':t.isPhysical===false?'<span class="badge b-purple">Mental</span>':'<span class="badge b-gray">—</span>'}</td>
+    <td>${boolBadge(t.isCustom)}</td>
+    <td>${t.isProtected?'<span class="badge b-orange">Protected</span>':'<span class="badge b-gray">No</span>'}</td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-success btn-sm" onclick="openAilmentTypeModal(${t.id})">Edit</button>
+      <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="askDelete('ailmenttype',${t.id},'${esc(t.name)}')">Delete</button>
+    </td>
+  </tr>`).join('');
+}
+
+function filterAilmentTypes(){
+  const q=document.getElementById('at-q').value.toLowerCase();
+  const f=document.getElementById('at-filter').value;
+  let list=allAilmentTypes.filter(t=>t.name.toLowerCase().includes(q));
+  if(f==='protected') list=list.filter(t=>t.isProtected);
+  if(f==='custom') list=list.filter(t=>t.isCustom);
+  if(f==='physical') list=list.filter(t=>t.isPhysical===true);
+  if(f==='mental') list=list.filter(t=>t.isPhysical===false);
+  renderAilmentTypes(list);
+}
+
+function openAilmentTypeModal(id=null){
+  document.getElementById('at-err').style.display='none';
+  if(id){
+    const t=allAilmentTypes.find(x=>x.id===id);
+    if(!t) return;
+    document.getElementById('at-modal-title').textContent='Edit Ailment Type';
+    document.getElementById('at-id').value=id;
+    document.getElementById('at-name').value=t.name;
+    document.getElementById('at-desc').value=t.ailmentDescription||'';
+    document.getElementById('at-protected').checked=!!t.isProtected;
+    document.getElementById('at-physical').checked=!!t.isPhysical;
+  }else{
+    document.getElementById('at-modal-title').textContent='Add Ailment Type';
+    document.getElementById('at-id').value='';
+    document.getElementById('at-name').value='';
+    document.getElementById('at-desc').value='';
+    document.getElementById('at-protected').checked=false;
+    document.getElementById('at-physical').checked=true;
+  }
+  document.getElementById('at-modal').classList.add('open');
+}
+
+function closeATModal(){ document.getElementById('at-modal').classList.remove('open'); }
+
+async function saveAilmentType(){
+  document.getElementById('at-err').style.display='none';
+  const editId=document.getElementById('at-id').value;
+  const name=document.getElementById('at-name').value.trim();
+  if(!name){ showATErr('Name is required.'); return; }
+
+  const body={
+    name,
+    ailmentDescription:document.getElementById('at-desc').value.trim()||null,
+    isCustom:false,
+    isProtected:document.getElementById('at-protected').checked,
+    isPhysical:document.getElementById('at-physical').checked,
+  };
+
+  try{
+    let res;
+    if(editId){
+      res=await api(`/api/ailment/type/update/${editId}`,{method:'POST',body:JSON.stringify(body)});
+    }else{
+      res=await api('/api/ailment/type/add',{method:'POST',body:JSON.stringify(body)});
+    }
+    if(!res.ok){ const t=await res.text(); throw new Error(t); }
+    toast(editId?'Ailment type updated ✓':'Ailment type added ✓','success');
+    closeATModal();
+    loadAilmentTypes();
+  }catch(e){ showATErr('Error: '+e.message); }
+}
+
+function showATErr(msg){ const e=document.getElementById('at-err'); e.textContent=msg; e.style.display='block'; }
+
+async function loadUsers(silent=false){
+  if(!token) return;
+  if(!silent) setTbLoading('users-tbody',8);
+  try{
+    const res=await api(`/api/test/getusers/${userPage}/${USER_PAGE_SIZE}`);
+    if(!res.ok) throw new Error(await res.text());
+    allUsers=await res.json();
+    renderUsers(allUsers);
+    document.getElementById('page-indicator').textContent=`Page ${userPage+1}`;
+    document.getElementById('btn-prev-page').disabled=userPage===0;
+    document.getElementById('btn-next-page').disabled=allUsers.length<USER_PAGE_SIZE;
+  }catch(e){
+    if(!silent) toast('Failed to load users: '+e.message,'error');
+    setTbErr('users-tbody',8,'Failed to load users.');
+  }
+}
+
+function nextUserPage(){ userPage++; loadUsers(); }
+function prevUserPage(){ if(userPage>0){ userPage--; loadUsers(); } }
+
+function renderUsers(users){
+  const tb=document.getElementById('users-tbody');
+  if(!users.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">No users found.</td></tr>'; return; }
+  tb.innerHTML=users.map(u=>{
+    const roles=u.roles||[];
+    const roleBadges=roles.map(r=>{
+      const n=r.name||r;
+      const cls=n==='ROLE_ADMIN'?'b-red':n==='ROLE_MODERATOR'?'b-orange':'b-blue';
+      return `<span class="badge ${cls}">${n.replace('ROLE_','')}</span>`;
+    }).join(' ');
+    return `<tr>
+      <td style="color:var(--hint);font-family:var(--mono);font-size:11px">${u.id||'—'}</td>
+      <td><strong>${esc(u.name||'—')}</strong></td>
+      <td style="color:var(--muted);font-size:12px">${esc(u.username||'—')}</td>
+      <td style="font-size:12px;color:var(--muted)">${u.dateOfBirth||u.dataOfBirth||'—'}</td>
+      <td>${roleBadges||'<span class="badge b-gray">—</span>'}</td>
+      <td style="font-size:12px;color:var(--muted)">${(u.doses||[]).length} dose(s)</td>
+      <td style="font-size:12px;color:var(--muted)">${(u.familyRelationships||[]).length} member(s)</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-success btn-sm" id="btn-up-${u.id}" onclick="upgradeUser(${u.id})" title="Upgrade to next role">▲ Upgrade</button>
+        <button class="btn btn-danger btn-sm" id="btn-dn-${u.id}" style="margin-left:4px" onclick="downgradeUser(${u.id})" title="Downgrade to previous role">▼ Downgrade</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterUsers(){
+  const q=document.getElementById('user-q').value.toLowerCase();
+  renderUsers(allUsers.filter(u=>
+    (u.name||'').toLowerCase().includes(q)||(u.username||'').toLowerCase().includes(q)
+  ));
+}
+
+async function upgradeUser(userId){
+  const btn=document.getElementById(`btn-up-${userId}`);
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  try{
+    const res=await api(`/admin/privilege/upgrade/${userId}`);
+    const msg=await res.text();
+    if(!res.ok) throw new Error(msg);
+    toast('▲ ' + msg, 'success');
+    await loadUsers(true);
+  }catch(e){
+    toast('Upgrade failed: '+e.message, 'error');
+    if(btn){ btn.disabled=false; btn.textContent='▲ Upgrade'; }
+  }
+}
+
+async function downgradeUser(userId){
+  const btn=document.getElementById(`btn-dn-${userId}`);
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  try{
+    const res=await api(`/admin/privilege/downgrade/${userId}`);
+    const msg=await res.text();
+    if(!res.ok) throw new Error(msg);
+    toast('▼ ' + msg, 'default');
+    await loadUsers(true);
+  }catch(e){
+    toast('Downgrade failed: '+e.message, 'error');
+    if(btn){ btn.disabled=false; btn.textContent='▼ Downgrade'; }
+  }
+}
+
+async function loadLogs(silent=false){
+  if(!token) return;
+  if(!silent) setTbLoading('logs-tbody',4);
+  try{
+    const res=await api('/admin/log/all');
+    if(!res.ok) throw new Error(await res.text());
+    allLogs=await res.json();
+    document.getElementById('s-logs').textContent=allLogs.length;
+    document.getElementById('nav-logs-badge').textContent=allLogs.length;
+    document.getElementById('nav-logs-badge').style.display='';
+    renderDashLogs(allLogs);
+    renderLogs(allLogs);
+  }catch(e){
+    if(!silent) toast('Failed to load logs: '+e.message,'error');
+    setTbErr('logs-tbody',4,'Failed to load logs. Requires ROLE_ADMIN + CORS fix.');
+  }
+}
+
+function renderLogs(logs){
+  const tb=document.getElementById('logs-tbody');
+  if(!logs.length){ tb.innerHTML='<tr class="empty-row"><td colspan="4">No logs found.</td></tr>'; return; }
+  tb.innerHTML=[...logs].reverse().map(l=>{
+    const t=l.logType?.name||'—';
+    const cls=t==='ADD'?'b-green':t==='DELETE'?'b-red':'b-orange';
+    return `<tr>
+      <td style="color:var(--hint);font-family:var(--mono);font-size:11px">${l.id||'—'}</td>
+      <td><span class="badge ${cls}">${t}</span></td>
+      <td style="font-size:13px;color:var(--muted)">${esc(l.description||'—')}</td>
+      <td style="font-size:11px;color:var(--hint);white-space:nowrap;font-family:var(--mono)">${fmtDate(l.localDateTime)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterLogs(){
+  const q=document.getElementById('log-q').value.toLowerCase();
+  const type=document.getElementById('log-type-f').value;
+  renderLogs(allLogs.filter(l=>
+    (l.description||'').toLowerCase().includes(q)&&
+    (!type||l.logType?.name===type)
+  ));
+}
+
+function askDelete(kind,id,name){
+  document.getElementById('conf-title').textContent=`Delete ${kind==='medication'?'Medication':'Ailment Type'}`;
+  document.getElementById('conf-msg').textContent=`Are you sure you want to delete "${name}"? This cannot be undone.`;
+  confirmCb=async()=>{
+    try{
+      let res;
+      if(kind==='medication'){
+        res=await api(`/api/medication/deleteMedication/${id}`,{method:'DELETE'});
+        if(!res.ok) throw new Error(await res.text());
+        toast('Medication deleted.','success');
+        loadMedications();
+      }else if(kind==='ailmenttype'){
+        toast('Ailment type deletion is not available in this backend version.','error');
+      }
+    }catch(e){ toast('Delete failed: '+e.message,'error'); }
+  };
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('open'); confirmCb=null; }
+function confirmOk(){ if(confirmCb) confirmCb(); closeConfirm(); }
+
+function setTbLoading(tbId,cols){
+  document.getElementById(tbId).innerHTML=
+    `<tr class="empty-row"><td colspan="${cols}"><span class="spinner"></span>Loading…</td></tr>`;
+}
+function setTbErr(tbId,cols,msg){
+  document.getElementById(tbId).innerHTML=
+    `<tr class="empty-row"><td colspan="${cols}" style="color:var(--red)">${msg}</td></tr>`;
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
